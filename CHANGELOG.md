@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/YoloDev/bitarr/compare/bitarr-v0.1.0...bitarr-v0.1.1) (2023-01-29)
+
+
+### Bug Fixes
+
+* crate metadata ([be9cd0f](https://github.com/YoloDev/bitarr/commit/be9cd0fcbd8c40cb6d85e5b2b7d4c60845156fe0))
+
 ## 0.1.0 (2023-01-29)
 
 
