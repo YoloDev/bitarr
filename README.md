@@ -3,7 +3,7 @@
 [![Crates.io][crates-badge]][crates-url]
 [![docs.rs][docs-badge]][docs-url]
 
-A fast and efficient Rust implementation of a BitSet, using a custom backing store for optimized performance.
+A fast and efficient Rust implementation of a BitSet, supporting multiple backing stores.
 
 ## Usage
 
