@@ -1,3 +1,5 @@
+#![cfg_attr(not(feature = "std"), no_std)]
+
 //! # BitSet
 //!
 //! A compact data structure for storing bits.
@@ -22,7 +24,6 @@
 //! assert_eq!(bs.get(2), Some(false));
 //! ```
 
-#![cfg_attr(not(feature = "std"), no_std)]
 #![cfg(feature = "alloc")]
 extern crate alloc;
 
