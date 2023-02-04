@@ -34,6 +34,7 @@ pub mod store;
 use core::fmt;
 use core::ops;
 use store::BitStoreMut;
+use store::FromBitIndexIterator;
 use store::{BitStore, BitStoreConst, DefaultIsEmpty};
 
 /// A compact data structure for storing bits
@@ -827,6 +828,14 @@ impl<S: BitStoreMut> ops::SubAssign for BitSet<S> {
 	#[inline]
 	fn sub_assign(&mut self, rhs: Self) {
 		self.difference_with(&rhs);
+	}
+}
+
+impl<S: FromBitIndexIterator> FromIterator<u32> for BitSet<S> {
+	#[inline]
+	fn from_iter<I: IntoIterator<Item = u32>>(iter: I) -> Self {
+		let bits = S::from_bit_index_iter(iter);
+		Self { bits }
 	}
 }
 
