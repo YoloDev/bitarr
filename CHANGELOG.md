@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/YoloDev/bitarr/compare/bitarr-v0.1.1...bitarr-v0.1.2) (2023-02-04)
+
+
+### Features
+
+* add FromIterator impl ([d794f70](https://github.com/YoloDev/bitarr/commit/d794f70a27cead41d3161ab2e5afa685ba927fec))
+
 ## [0.1.1](https://github.com/YoloDev/bitarr/compare/bitarr-v0.1.0...bitarr-v0.1.1) (2023-01-29)
 
 
