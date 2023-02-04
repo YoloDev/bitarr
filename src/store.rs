@@ -76,12 +76,6 @@ pub trait BitStoreConst: BitStore + Sized {
 	const FULL: Self;
 }
 
-/// A trait for types that can be used to store bits and can be created from
-/// an iterator over bit indices.
-pub trait FromBitIndexIterator: BitStore + Sized {
-	fn from_bit_index_iter<I: IntoIterator<Item = u32>>(iter: I) -> Self;
-}
-
 /// A trait for types that have all bits set to 0 when they are created.
 ///
 /// # Safety
@@ -210,16 +204,6 @@ macro_rules! impl_bitstore_uint {
 			#[inline]
 			fn negate(&mut self) {
 				*self = !*self
-			}
-		}
-
-		impl FromBitIndexIterator for $ty {
-			fn from_bit_index_iter<I: IntoIterator<Item = u32>>(iter: I) -> Self {
-				let mut result = Self::EMPTY;
-				for i in iter {
-					unsafe { result.set(i) }
-				}
-				result
 			}
 		}
 	};
@@ -356,19 +340,6 @@ impl<T: BitStoreMut, const N: usize> BitStoreMut for [T; N] {
 	#[inline]
 	fn negate(&mut self) {
 		self.iter_mut().for_each(BitStoreMut::negate)
-	}
-}
-
-// TODO: Can this constrait be reduced to only FromBitIndexIterator?
-impl<T: FromBitIndexIterator + BitStoreMut + BitStoreConst, const N: usize> FromBitIndexIterator
-	for [T; N]
-{
-	fn from_bit_index_iter<I: IntoIterator<Item = u32>>(iter: I) -> Self {
-		let mut store = <Self as BitStoreConst>::EMPTY;
-		for i in iter {
-			unsafe { store.set(i) }
-		}
-		store
 	}
 }
 

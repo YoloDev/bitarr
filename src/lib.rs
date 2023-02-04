@@ -33,9 +33,26 @@ pub mod store;
 
 use core::fmt;
 use core::ops;
-use store::BitStoreMut;
-use store::FromBitIndexIterator;
-use store::{BitStore, BitStoreConst, DefaultIsEmpty};
+use store::{BitStore, BitStoreConst, BitStoreMut, DefaultIsEmpty};
+
+/// A trait for collecting an iterator into a value as an operation
+/// that can fail.
+pub trait TryFromIterator<T>: Sized {
+	type Error;
+
+	fn try_from_iter<I: IntoIterator<Item = T>>(iter: I) -> Result<Self, Self::Error>;
+}
+
+pub trait TryCollectExt<I> {
+	fn try_collect<B: TryFromIterator<I>>(self) -> Result<B, B::Error>;
+}
+
+impl<I: Iterator> TryCollectExt<I::Item> for I {
+	#[inline]
+	fn try_collect<B: TryFromIterator<I::Item>>(self) -> Result<B, B::Error> {
+		B::try_from_iter(self)
+	}
+}
 
 /// A compact data structure for storing bits
 ///
@@ -831,13 +848,68 @@ impl<S: BitStoreMut> ops::SubAssign for BitSet<S> {
 	}
 }
 
-impl<S: FromBitIndexIterator> FromIterator<u32> for BitSet<S> {
-	#[inline]
-	fn from_iter<I: IntoIterator<Item = u32>>(iter: I) -> Self {
-		let bits = S::from_bit_index_iter(iter);
-		Self { bits }
+#[derive(Debug, Clone)]
+pub struct IndexRangeError<T: fmt::Debug + fmt::Display> {
+	index: T,
+	arr_len: u32,
+}
+
+impl<T: fmt::Debug + fmt::Display> fmt::Display for IndexRangeError<T> {
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+		write!(
+			f,
+			"index {} out of range for array of length {}",
+			self.index, self.arr_len
+		)
 	}
 }
+
+impl<T: fmt::Debug + fmt::Display> std::error::Error for IndexRangeError<T> {}
+
+impl<T: fmt::Debug + fmt::Display> IndexRangeError<T> {
+	#[cold]
+	fn new_err<R>(index: T, arr_len: u32) -> Result<R, Self> {
+		Err(Self { index, arr_len })
+	}
+}
+
+macro_rules! impl_from_iter {
+	($t:ty) => {
+		impl<S: BitStoreMut + BitStoreConst> TryFromIterator<$t> for BitSet<S> {
+			type Error = IndexRangeError<$t>;
+
+			fn try_from_iter<I: IntoIterator<Item = $t>>(iter: I) -> Result<Self, Self::Error> {
+				let mut bits = S::EMPTY;
+				for i in iter {
+					match u32::try_from(i) {
+						Ok(i) if i < S::BITS => {
+							// SAFETY: `i` is in range.
+							unsafe { bits.set(i) };
+						}
+						_ => return IndexRangeError::new_err(i, S::BITS),
+					}
+				}
+
+				Ok(Self { bits })
+			}
+		}
+
+		impl<S: BitStoreMut + BitStoreConst> FromIterator<$t> for BitSet<S> {
+			fn from_iter<I: IntoIterator<Item = $t>>(iter: I) -> Self {
+				match Self::try_from_iter(iter) {
+					Ok(v) => v,
+					Err(e) => panic!("{}", e),
+				}
+			}
+		}
+	};
+}
+
+impl_from_iter!(u64);
+impl_from_iter!(u32);
+impl_from_iter!(u16);
+impl_from_iter!(u8);
+impl_from_iter!(usize);
 
 #[cfg(test)]
 mod tests {
