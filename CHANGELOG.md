@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.0](https://github.com/YoloDev/bitarr/compare/bitarr-v0.1.2...bitarr-v0.2.0) (2023-02-04)
+
+
+### ⚠ BREAKING CHANGES
+
+* Removes a trait previous used for FromIterator implementation.
+
+### Features
+
+* make collecting into bitsets fallible ([f1b9aec](https://github.com/YoloDev/bitarr/commit/f1b9aec81d86a06d52d842d5fd9bf788d1fdff07))
+
 ## [0.1.2](https://github.com/YoloDev/bitarr/compare/bitarr-v0.1.1...bitarr-v0.1.2) (2023-02-04)
 
 
